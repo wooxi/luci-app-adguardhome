@@ -16,9 +16,8 @@ check_if_already_running(){
 check_wgetcurl(){
 	which curl && downloader="curl -L -k --retry 2 --connect-timeout 20 -o" && return
 	which wget-ssl && downloader="wget-ssl --no-check-certificate -t 2 -T 20 -O" && return
-	[ -z "$1" ] && opkg update || (echo error opkg && EXIT 1)
-	[ -z "$1" ] && (opkg remove wget wget-nossl --force-depends ; opkg install wget ; check_wgetcurl 1 ;return)
-	[ "$1" == "1" ] && (opkg install curl ; check_wgetcurl 2 ; return)
+	[ -z "$1" ] && apk update || (echo error apk && EXIT 1)
+	[ "$1" == "1" ] && (apk add curl ; check_wgetcurl 2 ; return)
 	echo error curl and wget && EXIT 1
 }
 check_latest_version(){
@@ -54,7 +53,7 @@ check_latest_version(){
 	fi
 }
 doupx(){
-	Archt="$(opkg info kernel | grep Architecture | awk -F "[ _]" '{print($2)}')"
+	Archt="$(uname -m)"
 	case $Archt in
 	"i386")
 	Arch="i386"
@@ -64,6 +63,9 @@ doupx(){
 	echo -e "i686 use $Arch may have bug" 
 	;;
 	"x86")
+	Arch="amd64"
+	;;
+	"x86_64")
 	Arch="amd64"
 	;;
 	"mipsel")
@@ -105,7 +107,7 @@ doupx(){
 	upx_latest_ver="$($downloader - https://api.github.com/repos/upx/upx/releases/latest 2>/dev/null|grep -E 'tag_name' |grep -E '[0-9.]+' -o 2>/dev/null)"
 	$downloader /tmp/upx-${upx_latest_ver}-${Arch}_linux.tar.xz "https://github.com/upx/upx/releases/download/v${upx_latest_ver}/upx-${upx_latest_ver}-${Arch}_linux.tar.xz" 2>&1
 	#tar xvJf
-	which xz || (opkg list | grep ^xz || opkg update && opkg install xz) || (echo "xz download fail" && EXIT 1)
+	which xz || (apk add xz) || (echo "xz download fail" && EXIT 1)
 	mkdir -p /tmp/upx-${upx_latest_ver}-${Arch}_linux
 	xz -d -c /tmp/upx-${upx_latest_ver}-${Arch}_linux.tar.xz| tar -x -C "/tmp" >/dev/null 2>&1
 	if [ ! -e "/tmp/upx-${upx_latest_ver}-${Arch}_linux/upx" ]; then
@@ -118,7 +120,7 @@ doupdate_core(){
 	echo -e "Updating core..." 
 	mkdir -p "/tmp/AdGuardHomeupdate"
 	rm -rf /tmp/AdGuardHomeupdate/* >/dev/null 2>&1
-	Archt="$(opkg info kernel | grep Architecture | awk -F "[ _]" '{print($2)}')"
+	Archt="$(uname -m)"
 	case $Archt in
 	"i386")
 	Arch="386"
@@ -127,6 +129,9 @@ doupdate_core(){
 	Arch="386"
 	;;
 	"x86")
+	Arch="amd64"
+	;;
+	"x86_64")
 	Arch="amd64"
 	;;
 	"mipsel")
