@@ -4,6 +4,17 @@
 <script src="/luci-static/resources/codemirror/mode/yaml/yaml.js"></script>
 <link rel="stylesheet" href="/luci-static/resources/codemirror/theme/dracula.css"/>
 <link rel="stylesheet" href="/luci-static/resources/codemirror/addon/fold/foldgutter.css"/>
+<style>
+  .CodeMirror {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 520px;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .cbi-value-field .CodeMirror { box-sizing: border-box; }
+</style>
 <script src="/luci-static/resources/codemirror/addon/fold/foldcode.js"></script>
 <script src="/luci-static/resources/codemirror/addon/fold/foldgutter.js"></script>
 <script src="/luci-static/resources/codemirror/addon/fold/indent-fold.js"></script>
@@ -19,6 +30,7 @@ gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
 matchBrackets: true //括号匹配
 }
 );
+editor.setSize("100%", "70vh");
 function reload_config(){
 	XHR.get('<%=url([[admin]], [[services]], [[AdGuardHome]], [[reloadconfig]])%>', null,
 	function(x, data) {
